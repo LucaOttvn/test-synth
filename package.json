@@ -1,5 +1,5 @@
 {
-  "name": "test-sinth",
+  "name": "test-synth",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -9,18 +9,21 @@
     "lint": "next lint"
   },
   "dependencies": {
+    "audiokeys": "^0.1.1",
+    "next": "14.2.9",
     "react": "^18",
     "react-dom": "^18",
-    "next": "14.2.9"
+    "sass": "^1.78.0",
+    "tone": "^15.0.4"
   },
   "devDependencies": {
-    "typescript": "^5",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.9",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
-    "eslint": "^8",
-    "eslint-config-next": "14.2.9"
+    "typescript": "^5"
   }
 }

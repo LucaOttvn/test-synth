@@ -1,0 +1,11 @@
+.topNavbar {
+    width: 100%;
+    display: flex;
+    justify-content: start;
+    gap: 1rem;
+    background-color: var(--green);
+    color: var(--black);
+    box-shadow: var(--generalBoxShadow);
+    padding: 0.3rem 0.6rem;
+    border: solid 3px var(--darkGreen);
+}

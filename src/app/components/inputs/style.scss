@@ -1,0 +1,17 @@
+.terminalInputTxt {
+    width: 100%;
+    height: 3rem;
+    background-color: var(--black);
+    color: var(--green);
+    box-shadow: var(--generalBoxShadow);
+    border: solid 1px var(--green);
+    padding: 0.5rem;
+
+    &:focus {
+        outline: none;
+    }
+
+    &::placeholder {
+        color: var(--lightGreen);
+    }
+}
