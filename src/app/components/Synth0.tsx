@@ -6,7 +6,8 @@ export default function Synth0() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [synth, setSynth] = useState<Tone.Synth | null>(null)
 
-  let keys = ['C4', 'D4', 'E4', 'F4', 'G4', 'A4', 'B4']
+  let keys = ['C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4'];
+
 
   useEffect(() => {
     // Initialize Tone.js Synth
