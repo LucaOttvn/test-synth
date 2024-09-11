@@ -18,4 +18,9 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 
 
 ## Input sound => MIDI controls
-## 
+## touch controller
+## Step sequencer
+Create a loop (interval) => on each loop trigger a note => 
+- how is the note been chosen? input / auto
+- if auto => how is it programmed? command line progression?
+- if input => what about latency? 
