@@ -9,10 +9,6 @@ interface TopNavbarProps {
 export default function TopNavbar(props: TopNavbarProps) {
 
     const numbersArray = Array.from({ length: props.synthsLength }, (_, index) => index + 1);
-    useEffect(() => {
-        console.log(numbersArray);
-    }, []);
-
 
     return (
         <div className='topNavbar'>

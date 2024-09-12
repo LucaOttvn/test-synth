@@ -15,3 +15,11 @@
         color: var(--lightGreen);
     }
 }
+
+// number tackles of input range container
+.rangeTacklesContainer {
+    font-size: 0.6rem;        
+    display: flex;
+    justify-content: space-between;
+    width: 95%;
+}

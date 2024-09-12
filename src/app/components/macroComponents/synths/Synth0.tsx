@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import * as Tone from 'tone'
-import './style.scss'
+import '../../style.scss'
+import StepSequencer from '../stepSequencer/StepSequencer'
 
 export default function Synth0() {
-  const [isPlaying, setIsPlaying] = useState(false)
+
   const [synth, setSynth] = useState<Tone.Synth | null>(null)
 
   let keys = ['C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4'];
-
 
   useEffect(() => {
     // Initialize Tone.js Synth
@@ -20,13 +20,6 @@ export default function Synth0() {
     }
   }, [])
 
-  function handlePlay(note: string) {
-    if (synth) {
-      synth.triggerAttackRelease(note, '4n')
-      setIsPlaying(true)
-    }
-  }
-
   function stop() {
     if (synth) {
       synth.triggerRelease()
@@ -34,17 +27,8 @@ export default function Synth0() {
   }
 
   return (
-    <div className='w-full center gap-5'>
-      {keys.map((key, index) => {
-        return <div key={index} className='key' onClick={() => {
-          handlePlay(key)
-        }}>{key}</div>
-      })}
-      <div className='generalButton' onClick={()=>{
-        stop()
-      }}>
-        Stop
-      </div>
+    <div className='w-full h-full start flex-col gap-5'>
+      {synth && <StepSequencer keys={keys} synth={synth} />}
     </div>
   )
 }

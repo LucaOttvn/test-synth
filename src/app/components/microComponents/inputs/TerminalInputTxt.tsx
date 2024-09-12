@@ -1,6 +1,8 @@
 import React from 'react'
 import './style.scss'
-import { terminalCmdsHandler } from '../../context'
+import { terminalCmdsHandler } from '@/app/context'
+
+
 
 export default function TerminalInputTxt() {
 

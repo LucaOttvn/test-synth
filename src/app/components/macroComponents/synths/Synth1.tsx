@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import * as Tone from 'tone'
-import './style.scss'
-import InputText from './inputs/TerminalInputTxt'
+import '../../style.scss'
 
 export default function Synth1() {
 
