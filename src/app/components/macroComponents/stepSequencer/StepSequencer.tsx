@@ -11,9 +11,10 @@ interface StepSequencerProps {
 }
 
 interface Step {
-    note: string,
-    duration: string,
-    sharp: boolean,
+    note?: string,
+    sharp?: boolean,
+    octave?: number,
+    duration?: string,
 }
 
 export default function StepSequencer(props: StepSequencerProps) {
@@ -24,16 +25,12 @@ export default function StepSequencer(props: StepSequencerProps) {
     const [currentStep, setCurrentStep] = useState<Step>();
     const [selectedStep, setSelectedStep] = useState<number>();
 
+    const durations = [1,2,4,8,16,32,64]
+
     useEffect(() => {
         // Initialize steps with 10 items
-        setSteps(Array.from({ length: 10 }, (_, i) => ({ note: '', duration: '', sharp: false })));
+        setSteps(Array.from({ length: 10 }, (_, i) => ({})));
     }, []);
-
-    function handlePlay(note: string) {
-        if (props.synth) {
-            props.synth.triggerAttackRelease(note, '4n')
-        }
-    }
 
     useEffect(() => {
         steps.forEach((step, index) => {
@@ -43,6 +40,25 @@ export default function StepSequencer(props: StepSequencerProps) {
             })
         })
     }, [selectedStep]);
+
+    useEffect(() => {
+        console.log(steps)
+    }, [steps]);
+
+
+    function updateStep(value: string | number | boolean, prop: string) {
+        setSteps((prevState) => {
+            const updatedSteps = [...prevState];
+            updatedSteps[selectedStep!] = { ...updatedSteps[selectedStep!], [prop]: value };
+            return updatedSteps;
+        });
+    }
+
+    function handlePlay(note: string) {
+        if (props.synth) {
+            props.synth.triggerAttackRelease(note, '4n')
+        }
+    }
 
     // Function to start the interval
     const startInterval = () => {
@@ -85,7 +101,7 @@ export default function StepSequencer(props: StepSequencerProps) {
                     </div>
                 })}
             </div>
-            <div className='flex flex-col justify-start'>
+            {selectedStep != undefined && <div className='flex flex-col justify-start'>
                 <span>Note editor</span>
                 <div className='inputsContainer'>
 
@@ -103,6 +119,9 @@ export default function StepSequencer(props: StepSequencerProps) {
                                 } else {
                                     target.value = '';
                                 }
+
+                                updateStep(target.value, 'note')
+
                             }}
                         />
                     </div>
@@ -111,7 +130,9 @@ export default function StepSequencer(props: StepSequencerProps) {
                     <div className='start flex-col gap-3'>
                         <span>#Sharp</span>
                         <label className="customSwitch">
-                            <input type="checkbox" />
+                            <input type="checkbox" onInput={(e) => {
+                                updateStep((e.target as HTMLInputElement).checked, 'sharp')
+                            }} />
                             <span className="slider"></span>
                         </label>
                     </div>
@@ -136,6 +157,9 @@ export default function StepSequencer(props: StepSequencerProps) {
                                 }
 
                                 input.value = value;
+
+                                updateStep(input.value, 'octave')
+
                             }}
                         />
                     </div>
@@ -143,10 +167,10 @@ export default function StepSequencer(props: StepSequencerProps) {
                     {/* Duration */}
                     <div className="flex flex-col start gap-1">
                         <span>Duration</span>
-                        <InputRange />
+                        <InputRange updateStep={updateStep} durations={durations}/>
                     </div>
                 </div>
-            </div>
+            </div>}
         </div>
     );
 }
