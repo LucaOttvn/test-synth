@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import './style.scss'
 import * as Tone from 'tone'
 import InputRange from '../../microComponents/inputs/InputRange';
+import gsap from 'gsap';
 
 
 interface StepSequencerProps {
@@ -20,7 +21,8 @@ export default function StepSequencer(props: StepSequencerProps) {
     const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
     const [steps, setSteps] = useState<Step[]>([]);
     const [duration, setDuration] = useState<Step[]>([]);
-    const [currentStep, setCurrentStep] = useState<Step>({ note: '', duration: '', sharp: false });
+    const [currentStep, setCurrentStep] = useState<Step>();
+    const [selectedStep, setSelectedStep] = useState<number>();
 
     useEffect(() => {
         // Initialize steps with 10 items
@@ -32,6 +34,15 @@ export default function StepSequencer(props: StepSequencerProps) {
             props.synth.triggerAttackRelease(note, '4n')
         }
     }
+
+    useEffect(() => {
+        steps.forEach((step, index) => {
+            gsap.set('#step' + index, {
+                background: selectedStep == index ? 'var(--green)' : 'var(--black)',
+                color: selectedStep == index ? 'var(--black)' : 'var(--green)'
+            })
+        })
+    }, [selectedStep]);
 
     // Function to start the interval
     const startInterval = () => {
@@ -67,7 +78,9 @@ export default function StepSequencer(props: StepSequencerProps) {
         <div className='stepSequencer'>
             <div className='stepsContainer center'>
                 {steps && steps.map((step, stepIndex) => {
-                    return <div key={'step' + stepIndex} className="step">
+                    return <div key={'step' + stepIndex} id={'step' + stepIndex} className="step" onClick={() => {
+                        setSelectedStep(stepIndex)
+                    }}>
                         {stepIndex + 1}
                     </div>
                 })}
@@ -130,7 +143,7 @@ export default function StepSequencer(props: StepSequencerProps) {
                     {/* Duration */}
                     <div className="flex flex-col start gap-1">
                         <span>Duration</span>
-                        <InputRange/>
+                        <InputRange />
                     </div>
                 </div>
             </div>
