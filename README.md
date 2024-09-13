@@ -25,3 +25,13 @@ Create a loop (interval) => on each loop trigger a note =>
 - if auto => how is it programmed? command line progression?
 - - is command line notes input too slow?
 - if input => what about latency? 
+
+
+
+
+
+
+
+## TODO
+- empty steps handling
+- insert global steps duration

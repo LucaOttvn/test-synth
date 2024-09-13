@@ -8,7 +8,9 @@ import DurationSelector from '../../microComponents/DurationSelector';
 
 interface StepSequencerProps {
     synth: Tone.Synth,
-    keys: string[]
+    keys: string[],
+    bpm: number,
+    stepsNumber: number
 }
 
 interface Step {
@@ -25,12 +27,12 @@ export default function StepSequencer(props: StepSequencerProps) {
     const [selectedStep, setSelectedStep] = useState<number>();
     const [currentStep, setCurrentStep] = useState<number>();
 
-    const stepsNumber = 2
+
 
     useEffect(() => {
         // Initialize steps with 10 items
-        setSteps(Array.from({ length: stepsNumber }, (_, i) => ({ sharp: false, duration: 1 })));
-    }, []);
+        setSteps(Array.from({ length: props.stepsNumber }, (_, i) => ({ sharp: false, duration: 1 })));
+    }, [props.stepsNumber]);
 
     // handle selected step effect
     useEffect(() => {
@@ -105,7 +107,7 @@ export default function StepSequencer(props: StepSequencerProps) {
         // Ensure the Transport is started
         Tone.start().then(() => {
 
-            Tone.getTransport().bpm.value = 150; 
+            Tone.getTransport().bpm.value = props.bpm; 
             // Schedule the notes when the button is clicked
             scheduleNotes(steps);
             Tone.getTransport().start(); // Start the transport
@@ -116,7 +118,7 @@ export default function StepSequencer(props: StepSequencerProps) {
         <div className='stepSequencer'>
             {/* steps section */}
             <div className='center gap-5'>
-                <div className='stepsContainer center'>
+                <div className='stepsContainer center flex-wrap'>
                     {steps && steps.map((step, stepIndex) => {
                         return <div key={'step' + stepIndex} id={'step' + stepIndex} className="step" onClick={() => {
                             setSelectedStep(stepIndex)
