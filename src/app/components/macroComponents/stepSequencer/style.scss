@@ -11,6 +11,7 @@
         border: solid 1px var(--green);
         background-color: var(--black);
         display: flex;
+        flex-direction: column;
         justify-content: center;
         align-items: center;
         cursor: pointer;

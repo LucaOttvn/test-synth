@@ -21,7 +21,6 @@ export default function StepSequencer(props: StepSequencerProps) {
 
     const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
     const [steps, setSteps] = useState<Step[]>([]);
-    const [duration, setDuration] = useState<Step[]>([]);
     const [currentStep, setCurrentStep] = useState<Step>();
     const [selectedStep, setSelectedStep] = useState<number>();
 
@@ -41,15 +40,19 @@ export default function StepSequencer(props: StepSequencerProps) {
         })
     }, [selectedStep]);
 
-    useEffect(() => {
-        console.log(steps)
-    }, [steps]);
-
 
     function updateStep(value: string | number | boolean, prop: string) {
         setSteps((prevState) => {
             const updatedSteps = [...prevState];
+
+            // Initialize the selected step with `sharp: false` if it's not defined
+            if (selectedStep && !updatedSteps[selectedStep!].note) {
+                updatedSteps[selectedStep!] = { ...updatedSteps[selectedStep!], sharp: false };
+            }
+
+            // Update the property with the new value
             updatedSteps[selectedStep!] = { ...updatedSteps[selectedStep!], [prop]: value };
+
             return updatedSteps;
         });
     }
@@ -97,7 +100,26 @@ export default function StepSequencer(props: StepSequencerProps) {
                     return <div key={'step' + stepIndex} id={'step' + stepIndex} className="step" onClick={() => {
                         setSelectedStep(stepIndex)
                     }}>
-                        {stepIndex + 1}
+                        {steps[stepIndex].note ? (
+                            <div className='w-full center'>
+                                {/* Render the note first */}
+                                <span>{steps[stepIndex].note}</span>
+
+                                {/* Conditionally render the sharp symbol after the note */}
+                                {steps[stepIndex].sharp && <span>#</span>}
+
+                                {/* Render other keys except duration and sharp */}
+                                {Object.keys(steps[stepIndex]).map((key) => {
+                                    if (key !== 'note' && key !== 'duration' && key !== 'sharp') {
+                                        return <span key={key}>{steps[stepIndex][key as keyof Step]}</span>;
+                                    }
+                                })}
+                            </div>
+                        ) : (
+                            <span>{stepIndex + 1}</span>
+                        )}
+                        <div>{'1/' + steps[stepIndex].duration}</div>
+
                     </div>
                 })}
             </div>
@@ -150,6 +172,7 @@ export default function StepSequencer(props: StepSequencerProps) {
                             className="generalInput"
                             style={{ width: '2rem', textTransform: 'uppercase' }}
                             maxLength={1}
+                            value={steps[selectedStep].octave ?? ''}
                             onInput={(e) => {
                                 const input = e.target as HTMLInputElement;
                                 let value = input.value;
