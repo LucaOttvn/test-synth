@@ -11,7 +11,7 @@ export default function InputRange(props: InputRangeProps) {
 
   return (
     <>
-      <input type="range" name="" id="" min={0} max={100} step={16.66}
+      <input type="range" name="" id="" min={0} max={100} step={16.66} defaultValue={0}
         onInput={(e) => {
           const target = e.target as HTMLInputElement;
           const value = Number(target.value); // Convert to number

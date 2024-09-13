@@ -12,7 +12,7 @@ interface StepSequencerProps {
 
 interface Step {
     note?: string,
-    sharp?: boolean,
+    sharp: boolean,
     octave?: number,
     duration?: string,
 }
@@ -25,11 +25,11 @@ export default function StepSequencer(props: StepSequencerProps) {
     const [currentStep, setCurrentStep] = useState<Step>();
     const [selectedStep, setSelectedStep] = useState<number>();
 
-    const durations = [1,2,4,8,16,32,64]
+    const durations = [1, 2, 4, 8, 16, 32, 64]
 
     useEffect(() => {
         // Initialize steps with 10 items
-        setSteps(Array.from({ length: 10 }, (_, i) => ({})));
+        setSteps(Array.from({ length: 10 }, (_, i) => ({ sharp: false, duration: '1' })));
     }, []);
 
     useEffect(() => {
@@ -109,6 +109,7 @@ export default function StepSequencer(props: StepSequencerProps) {
                     <div className='flex flex-col items-center'>
                         <span>Note</span>
                         <input type="text" className='generalInput' style={{ width: '2rem', textTransform: 'uppercase' }}
+                            value={steps[selectedStep].note ?? ''}
                             maxLength={1}
                             onInput={(e) => {
                                 const validChars = 'CDEFGAB';
@@ -127,15 +128,19 @@ export default function StepSequencer(props: StepSequencerProps) {
                     </div>
 
                     {/* sharp */}
-                    <div className='start flex-col gap-3'>
-                        <span>#Sharp</span>
-                        <label className="customSwitch">
-                            <input type="checkbox" onInput={(e) => {
-                                updateStep((e.target as HTMLInputElement).checked, 'sharp')
-                            }} />
-                            <span className="slider"></span>
-                        </label>
-                    </div>
+                    {(steps[selectedStep].note === 'C' || steps[selectedStep].note === 'D' ||
+                        steps[selectedStep].note === 'F' || steps[selectedStep].note === 'G' ||
+                        steps[selectedStep].note === 'A') && <div className='start flex-col gap-3'>
+                            <span>#Sharp</span>
+                            <label className="customSwitch">
+                                <input
+                                    type="checkbox"
+                                    checked={steps[selectedStep].sharp ?? false} // Ensure proper default value
+                                    onChange={e => { updateStep((e.target as HTMLInputElement).checked, 'sharp') }}
+                                />
+                                <span className="slider"></span>
+                            </label>
+                        </div>}
 
                     {/* octave */}
                     <div className='flex flex-col items-center'>
@@ -167,7 +172,7 @@ export default function StepSequencer(props: StepSequencerProps) {
                     {/* Duration */}
                     <div className="flex flex-col start gap-1">
                         <span>Duration</span>
-                        <InputRange updateStep={updateStep} durations={durations}/>
+                        <InputRange updateStep={updateStep} durations={durations} />
                     </div>
                 </div>
             </div>}
