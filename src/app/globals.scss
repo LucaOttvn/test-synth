@@ -50,13 +50,14 @@ body {
 
 .key,
 .generalButton {
-  border: solid 1px var(--green);
+  border: solid 2px var(--darkGreen);
   display: flex;
   justify-content: center;
   align-items: center;
   cursor: pointer;
   min-width: 2rem;
-  background: var(--black);
+  background: var(--green);
+  color: var(--black);
 }
 
 .key {

@@ -3,6 +3,7 @@ import './style.scss'
 import * as Tone from 'tone'
 import InputRange from '../../microComponents/inputs/InputRange';
 import gsap from 'gsap';
+import DurationSelector from '../../microComponents/DurationSelector';
 
 
 interface StepSequencerProps {
@@ -14,23 +15,24 @@ interface Step {
     note?: string,
     sharp: boolean,
     octave?: number,
-    duration?: string,
+    duration: number,
 }
 
 export default function StepSequencer(props: StepSequencerProps) {
 
     const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
     const [steps, setSteps] = useState<Step[]>([]);
-    const [currentStep, setCurrentStep] = useState<Step>();
     const [selectedStep, setSelectedStep] = useState<number>();
+    const [currentStep, setCurrentStep] = useState<number>();
 
-    const durations = [1, 2, 4, 8, 16, 32, 64]
+    const stepsNumber = 2
 
     useEffect(() => {
         // Initialize steps with 10 items
-        setSteps(Array.from({ length: 10 }, (_, i) => ({ sharp: false, duration: '1' })));
+        setSteps(Array.from({ length: stepsNumber }, (_, i) => ({ sharp: false, duration: 1 })));
     }, []);
 
+    // handle selected step effect
     useEffect(() => {
         steps.forEach((step, index) => {
             gsap.set('#step' + index, {
@@ -57,72 +59,99 @@ export default function StepSequencer(props: StepSequencerProps) {
         });
     }
 
-    function handlePlay(note: string) {
+
+
+    // useEffect(() => {
+    //     console.log('currentstep changed')
+    //     console.log(currentStep)
+    //     if (currentStep != undefined) {
+    //         let step = steps[currentStep]
+
+    //         let note = step.note + (step.sharp ? '#' : '') + step.octave;
+
+    //         console.log(note)
+    //         handlePlay(note, step.duration!);
+    //     }
+    // }, [currentStep]);
+
+    function scheduleNotes(steps: Step[]) {
+        let time = Tone.now(); // Start scheduling from the current time
+    
+        steps.forEach(step => {
+            const note = step.note + (step.sharp ? '#' : '') + step.octave;
+            const duration = step.duration;
+
+            console.log(duration)
+    
+            Tone.getTransport().schedule((t) => {
+                handlePlay(t, note, duration! + 'n');
+            }, time);
+    
+            time += Tone.Time(duration + 'n').toSeconds(); // Increment time by the duration of the note
+        });
+    }
+    
+
+    function handlePlay(time: number, note: string, duration: string) {
         if (props.synth) {
-            props.synth.triggerAttackRelease(note, '4n')
+            props.synth.triggerAttack(note, time);
+            props.synth.triggerRelease(time + Tone.Time(duration).toSeconds());
         }
     }
+    
+    
+    
+    const handlePlayClick = () => {
+        // Ensure the Transport is started
+        Tone.start().then(() => {
 
-    // Function to start the interval
-    const startInterval = () => {
-        if (intervalId) return; // Prevent starting multiple intervals
-
-        const id = setInterval(() => {
-            const randomIndex = Math.floor(Math.random() * props.keys.length);
-            handlePlay(props.keys[randomIndex]);
-        }, 500);
-
-        setIntervalId(id);
+            Tone.getTransport().bpm.value = 150; 
+            // Schedule the notes when the button is clicked
+            scheduleNotes(steps);
+            Tone.getTransport().start(); // Start the transport
+        });
     };
-
-    // Function to stop the interval
-    const stopInterval = () => {
-        if (intervalId) {
-            clearInterval(intervalId);
-            setIntervalId(null);
-        }
-    };
-
-    // Clean up interval on component unmount
-    React.useEffect(() => {
-        return () => {
-            if (intervalId) {
-                clearInterval(intervalId);
-            }
-        };
-    }, [intervalId]);
-
-
+    
     return (
         <div className='stepSequencer'>
-            <div className='stepsContainer center'>
-                {steps && steps.map((step, stepIndex) => {
-                    return <div key={'step' + stepIndex} id={'step' + stepIndex} className="step" onClick={() => {
-                        setSelectedStep(stepIndex)
-                    }}>
-                        {steps[stepIndex].note ? (
-                            <div className='w-full center'>
-                                {/* Render the note first */}
-                                <span>{steps[stepIndex].note}</span>
+            {/* steps section */}
+            <div className='center gap-5'>
+                <div className='stepsContainer center'>
+                    {steps && steps.map((step, stepIndex) => {
+                        return <div key={'step' + stepIndex} id={'step' + stepIndex} className="step" onClick={() => {
+                            setSelectedStep(stepIndex)
+                        }}>
+                            {steps[stepIndex].note ? (
+                                <div className='w-full center'>
+                                    {/* Render the note first */}
+                                    <span>{steps[stepIndex].note}</span>
 
-                                {/* Conditionally render the sharp symbol after the note */}
-                                {steps[stepIndex].sharp && <span>#</span>}
+                                    {/* Conditionally render the sharp symbol after the note */}
+                                    {steps[stepIndex].sharp && <span>#</span>}
 
-                                {/* Render other keys except duration and sharp */}
-                                {Object.keys(steps[stepIndex]).map((key) => {
-                                    if (key !== 'note' && key !== 'duration' && key !== 'sharp') {
-                                        return <span key={key}>{steps[stepIndex][key as keyof Step]}</span>;
-                                    }
-                                })}
-                            </div>
-                        ) : (
-                            <span>{stepIndex + 1}</span>
-                        )}
-                        <div>{'1/' + steps[stepIndex].duration}</div>
+                                    {/* Render other keys except duration and sharp */}
+                                    {Object.keys(steps[stepIndex]).map((key) => {
+                                        if (key !== 'note' && key !== 'duration' && key !== 'sharp') {
+                                            return <span key={key}>{steps[stepIndex][key as keyof Step]}</span>;
+                                        }
+                                    })}
+                                </div>
+                            ) : (
+                                <span>{stepIndex + 1}</span>
+                            )}
+                            <div>{'1/' + steps[stepIndex].duration}</div>
 
-                    </div>
-                })}
+                        </div>
+                    })}
+                </div>
+                {/* play button */}
+                <div className='generalButton px-2'
+                    onClick={() => {
+                        handlePlayClick()
+                    }}
+                >Play</div>
             </div>
+            {/* note editor section */}
             {selectedStep != undefined && <div className='flex flex-col justify-start'>
                 <span>Note editor</span>
                 <div className='inputsContainer'>
@@ -195,7 +224,7 @@ export default function StepSequencer(props: StepSequencerProps) {
                     {/* Duration */}
                     <div className="flex flex-col start gap-1">
                         <span>Duration</span>
-                        <InputRange updateStep={updateStep} durations={durations} />
+                        <DurationSelector updateStep={updateStep} selectedStepValue={steps[selectedStep].duration!}/>
                     </div>
                 </div>
             </div>}
