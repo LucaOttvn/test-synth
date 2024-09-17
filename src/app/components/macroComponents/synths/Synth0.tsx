@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react'
 import * as Tone from 'tone'
 import '../../style.scss'
 import StepSequencer from '../stepSequencer/StepSequencer'
+import { Step } from '@/app/context'
 
 export default function Synth0() {
 
@@ -9,9 +10,11 @@ export default function Synth0() {
   const [bpm, setBpm] = useState(120)
   const [stepsNumber, setStepsNumber] = useState(5)
 
+
   let keys = ['C4', 'C#4', 'D4', 'D#4', 'E4', 'F4', 'F#4', 'G4', 'G#4', 'A4', 'A#4', 'B4'];
 
   useEffect(() => {
+
     // Initialize Tone.js Synth
     const newSynth = new Tone.Synth().toDestination()
     setSynth(newSynth)
@@ -22,9 +25,12 @@ export default function Synth0() {
     }
   }, [])
 
+  
+
   return (
     <div className='w-full h-full flex flex-col items-start gap-5'>
 
+      {/* bpm and steps number section */}
       <div className='center gap-10'>
         <div className='center gap-2'>
           <input
@@ -53,7 +59,7 @@ export default function Synth0() {
           <span>bpm</span>
         </div>
         <div className='center gap-2'>
-        <span>steps number</span>
+          <span>steps number</span>
 
           <input
             type="text"
@@ -81,6 +87,7 @@ export default function Synth0() {
         </div>
       </div>
       {synth && <StepSequencer keys={keys} synth={synth} bpm={bpm} stepsNumber={stepsNumber}/>}
+     
     </div>
   )
 }

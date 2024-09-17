@@ -1,9 +1,9 @@
 .stepSequencer {
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1rem;
 
     .step {
         width: 4rem;

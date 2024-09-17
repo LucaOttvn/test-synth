@@ -4,29 +4,23 @@ import * as Tone from 'tone'
 import InputRange from '../../microComponents/inputs/InputRange';
 import gsap from 'gsap';
 import DurationSelector from '../../microComponents/DurationSelector';
+import { Step } from '@/app/context';
 
 
 interface StepSequencerProps {
-    synth: Tone.Synth,
-    keys: string[],
-    bpm: number,
+    synth: Tone.Synth
+    keys: string[]
+    bpm: number
     stepsNumber: number
 }
 
-interface Step {
-    note?: string,
-    sharp: boolean,
-    octave?: number,
-    duration: number,
-}
 
 export default function StepSequencer(props: StepSequencerProps) {
 
-    const [intervalId, setIntervalId] = useState<NodeJS.Timeout | null>(null);
     const [steps, setSteps] = useState<Step[]>([]);
     const [selectedStep, setSelectedStep] = useState<number>();
     const [currentStep, setCurrentStep] = useState<number>();
-
+    const [savedSequences, setSavedSequences] = useState<Step[][]>(JSON.parse(localStorage.getItem('savedSequences') ?? '[]'))
 
 
     useEffect(() => {
@@ -43,6 +37,10 @@ export default function StepSequencer(props: StepSequencerProps) {
             })
         })
     }, [selectedStep]);
+
+    useEffect(() => {
+        localStorage.setItem('savedSequences', JSON.stringify(savedSequences))
+    }, [savedSequences]);
 
 
     function updateStep(value: string | number | boolean, prop: string) {
@@ -61,38 +59,22 @@ export default function StepSequencer(props: StepSequencerProps) {
         });
     }
 
-
-
-    // useEffect(() => {
-    //     console.log('currentstep changed')
-    //     console.log(currentStep)
-    //     if (currentStep != undefined) {
-    //         let step = steps[currentStep]
-
-    //         let note = step.note + (step.sharp ? '#' : '') + step.octave;
-
-    //         console.log(note)
-    //         handlePlay(note, step.duration!);
-    //     }
-    // }, [currentStep]);
-
     function scheduleNotes(steps: Step[]) {
         let time = Tone.now(); // Start scheduling from the current time
-    
+
         steps.forEach(step => {
             const note = step.note + (step.sharp ? '#' : '') + step.octave;
             const duration = step.duration;
 
             console.log(duration)
-    
+
             Tone.getTransport().schedule((t) => {
                 handlePlay(t, note, duration! + 'n');
             }, time);
-    
+
             time += Tone.Time(duration + 'n').toSeconds(); // Increment time by the duration of the note
         });
     }
-    
 
     function handlePlay(time: number, note: string, duration: string) {
         if (props.synth) {
@@ -100,20 +82,18 @@ export default function StepSequencer(props: StepSequencerProps) {
             props.synth.triggerRelease(time + Tone.Time(duration).toSeconds());
         }
     }
-    
-    
-    
-    const handlePlayClick = () => {
+
+    function handlePlayClick() {
         // Ensure the Transport is started
         Tone.start().then(() => {
 
-            Tone.getTransport().bpm.value = props.bpm; 
+            Tone.getTransport().bpm.value = props.bpm;
             // Schedule the notes when the button is clicked
             scheduleNotes(steps);
             Tone.getTransport().start(); // Start the transport
         });
     };
-    
+
     return (
         <div className='stepSequencer'>
             {/* steps section */}
@@ -152,9 +132,16 @@ export default function StepSequencer(props: StepSequencerProps) {
                         handlePlayClick()
                     }}
                 >Play</div>
+                <div className='generalButton px-2'
+                    onClick={() => {
+                        setSavedSequences(prevState => [...prevState, steps])
+                    }}>
+                    Save sequence
+                </div>
+
             </div>
             {/* note editor section */}
-            {selectedStep != undefined && <div className='flex flex-col justify-start'>
+            {selectedStep != undefined && steps[selectedStep] != undefined && <div className='flex flex-col justify-start'>
                 <span>Note editor</span>
                 <div className='inputsContainer'>
 
@@ -226,10 +213,34 @@ export default function StepSequencer(props: StepSequencerProps) {
                     {/* Duration */}
                     <div className="flex flex-col start gap-1">
                         <span>Duration</span>
-                        <DurationSelector updateStep={updateStep} selectedStepValue={steps[selectedStep].duration!}/>
+                        <DurationSelector updateStep={updateStep} selectedStepValue={steps[selectedStep].duration!} />
                     </div>
                 </div>
+            </div>}
+
+            {/* saved sequences list */}
+            {savedSequences.length > 0 && <div className='flex flex-col justify-start items-start gap-2'>
+                <span>Saved sequences</span>
+                {savedSequences.map((sequence, sequenceIndex) => {
+                    return (
+                        <div key={'savedSequence' + sequenceIndex} className='center gap-3' style={{ cursor: 'pointer' }}>
+                            <span onClick={() => {
+                                setSteps(sequence)
+                            }}>
+                                - Sequence {sequenceIndex + 1}
+                            </span>
+                            <span className='generalButton px-2'
+                                onClick={() => {
+                                    savedSequences.slice(sequenceIndex, 1)
+                                    setSavedSequences((prevArray) => prevArray.filter((_, index) => index !== sequenceIndex))
+                                }}>
+                                Delete
+                            </span>
+                        </div>
+                    )
+                })}
             </div>}
         </div>
     );
 }
+
